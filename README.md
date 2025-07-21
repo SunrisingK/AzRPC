@@ -132,16 +132,10 @@ sudo apt install zookeeperd
 sudo apt install libzookeeper-mt-dev
 ```
 
-#### 安装Protobuf 3.12.4版本
+#### 安装Protobuf 3.21.12版本
 
 ```shell
-wget https://github.com/protocolbuffers/protobuf/releases/download/v3.12.4/protobuf-all-3.12.4.tar.gz
-tar -xzf protobuf-all-3.12.4.tar.gz
-cd protobuf-3.12.4
-./configure
-make -j8
-sudo make install
-sudo ldconfig
+sudo apt-get install protobuf-compiler libprotobuf-dev
 ```
 
 #### 安装boost库

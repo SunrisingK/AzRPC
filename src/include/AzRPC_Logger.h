@@ -3,21 +3,21 @@
 #include <glog/logging.h>
 #include <string>
 
-class AzRPCLogger {
+class AzRPC_Logger {
 private:
     // 禁用拷贝构造函数和重载赋值函数
-    AzRPCLogger(const AzRPCLogger&) = delete;
-    AzRPCLogger& operator=(const AzRPCLogger&) = delete;
+    AzRPC_Logger(const AzRPC_Logger&) = delete;
+    AzRPC_Logger& operator=(const AzRPC_Logger&) = delete;
     
 public:
     // 构造函数自动初始化glog
-    explicit AzRPCLogger(const char* argv) {
+    explicit AzRPC_Logger(const char* argv) {
         google::InitGoogleLogging(argv);
         FLAGS_colorlogtostderr = true;    // 启用彩色日志
         FLAGS_logtostderr = true;         // 默认输出标准错误
     }
 
-    ~AzRPCLogger() {
+    ~AzRPC_Logger() {
         // 关闭logger
         google::ShutdownGoogleLogging();
     }
