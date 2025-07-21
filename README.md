@@ -119,3 +119,39 @@ hello world
 hello muduo
 hello muduo
 ```
+
+#### 安装Zookeeper
+
+```shell
+sudo apt install zookeeperd
+```
+
+#### 安装Zookeeper开发库
+
+```shell
+sudo apt install libzookeeper-mt-dev
+```
+
+#### 安装Protobuf 3.12.4版本
+
+```shell
+wget https://github.com/protocolbuffers/protobuf/releases/download/v3.12.4/protobuf-all-3.12.4.tar.gz
+tar -xzf protobuf-all-3.12.4.tar.gz
+cd protobuf-3.12.4
+./configure
+make -j8
+sudo make install
+sudo ldconfig
+```
+
+#### 安装boost库
+
+```shell
+sudo apt-get install -y libboost-all-dev
+```
+
+#### 安装Glog日志库
+
+```shell
+sudo apt-get install libgoogle-glog-dev libgflags-dev
+```
