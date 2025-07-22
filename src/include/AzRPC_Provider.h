@@ -26,6 +26,8 @@ private:
         google::protobuf::Service* service;
         std::unordered_map<std::string, const google::protobuf::MethodDescriptor*> method_map;
     };
+    //保存服务对象和rpc方法
+    std::unordered_map<std::string, ServiceInfo> service_map;
 
     void OnCennection(const muduo::net::TcpConnectionPtr& connection);
     void OnMessage(const muduo::net::TcpConnectionPtr& connection, muduo::net::Buffer* buffer, muduo::Timestamp receive_time);
