@@ -29,7 +29,7 @@ private:
     //保存服务对象和rpc方法
     std::unordered_map<std::string, ServiceInfo> service_map;
 
-    void OnCennection(const muduo::net::TcpConnectionPtr& connection);
+    void OnConnection(const muduo::net::TcpConnectionPtr& connection);
     void OnMessage(const muduo::net::TcpConnectionPtr& connection, muduo::net::Buffer* buffer, muduo::Timestamp receive_time);
     void SendRpcResponse(const muduo::net::TcpConnectionPtr& conn, google::protobuf::Message* response);
 };

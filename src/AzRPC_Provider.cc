@@ -54,7 +54,7 @@ void AzRPC_Provider::Run() {
     std::shared_ptr<muduo::net::TcpServer> server = std::make_shared<muduo::net::TcpServer>(&event_loop, address, "AzRPC_Provider");
 
     // 绑定连接回调和消息回调, 分离网络链接业务和消息处理业务
-    server->setConnectionCallback(std::bind(&AzRPC_Provider::OnCennection, this, std::placeholders::_1));
+    server->setConnectionCallback(std::bind(&AzRPC_Provider::OnConnection, this, std::placeholders::_1));
     server->setMessageCallback(std::bind(&AzRPC_Provider::OnMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
 
@@ -87,4 +87,110 @@ void AzRPC_Provider::Run() {
     server->start();
     // 进入事件循环
     event_loop.loop();
+}
+
+// 连接回调函数, 处理客户端连接事件
+void AzRPC_Provider::OnConnection(const muduo::net::TcpConnectionPtr& connection) {
+    if (!connection->connected()) {
+        // 如果连接关闭则断开连接
+        connection->shutdown();
+    }
+}
+
+// 消息回调函数, 处理客户端发送的RPC请求
+void AzRPC_Provider::OnMessage(const muduo::net::TcpConnectionPtr& connection, muduo::net::Buffer* buffer, muduo::Timestamp receive_time) {
+    std::cout << "OnMessage" << std::endl;
+
+    // 从网络缓冲区中读取RPC请求的字符流
+    std::string receive_buf = buffer->retrieveAllAsString();
+
+    // 使用protobuf的CodeInputStream反序列化RPC请求
+    google::protobuf::io::ArrayInputStream raw_input(receive_buf.data(), receive_buf.size());
+    google::protobuf::io::CodedInputStream coded_input(&raw_input);
+
+    uint32_t header_size{};
+    coded_input.ReadVarint32(&header_size);     // 解析header_size
+    
+    // 根据header_size读取数据头的原始字符流, 反序列化数据, 得到RPC请求的详细信息
+    std::string rpc_header_str;
+    AzRPC::RpcHeader AzRPC_Header;
+    std::string service_name;
+    std::string method_name;
+    uint32_t args_size{};
+
+    // 设置读取限制
+    google::protobuf::io::CodedInputStream::Limit msg_limit = coded_input.PushLimit(header_size);
+    coded_input.ReadString(&rpc_header_str, header_size);
+    // 恢复之前的限制, 以便安全地继续读取其他数据
+    coded_input.PopLimit(msg_limit);
+
+    if (AzRPC_Header.ParseFromString(rpc_header_str)) {
+        service_name = AzRPC_Header.service_name();
+        method_name = AzRPC_Header.method_name();
+        args_size = AzRPC_Header.args_size();
+    }
+    else {
+        AzRPC_Logger::ERROR("AzRPC_Header parse error");
+        return;
+    }
+
+    std::string args_str;   // RPC参数
+    // 直接读取args_size长度的字符串数据
+    bool read_args_success = coded_input.ReadString(&args_str, args_size);
+    if (!read_args_success) {
+        AzRPC_Logger::ERROR("read args error");
+        return;
+    }
+
+    // 获取service对象和method对象
+    auto it = service_map.find(service_name);
+    if (it == service_map.end()) {
+        std::cout << service_name << " does not exist!" << std::endl;
+        return;
+    }
+    auto mit = it->second.method_map.find(method_name);
+    if (mit == it->second.method_map.end()) {
+        std::cout << service_name << "." << method_name << " does not exist!" << std::endl;
+        return;
+    }
+
+    // 获取服务对象
+    google::protobuf::Service* service = it->second.service;
+    // 获取方法对象
+    const google::protobuf::MethodDescriptor* method = mit->second;
+
+    // 生成RPC方法调用请求的request和响应的response参数
+    // 动态创新请求对象
+    google::protobuf::Message* request = service->GetRequestPrototype(method).New();
+    if (!request->ParseFromString(args_str)) {
+        std::cout << service_name << "." << method_name << " parse error!" << std::endl;
+        return;
+    }
+    // 动态创建响应对象
+    google::protobuf::Message* response = service->GetResponsePrototype(method).New();
+
+    // 绑定回调函数, 用于在方法调用完成后发送响应
+    google::protobuf::Closure* done = google::protobuf::NewCallback<AzRPC_Provider, const muduo::net::TcpConnectionPtr&, google::protobuf::Message*>(this, &AzRPC_Provider::SendRpcResponse, connection,response);
+
+    // 根据RPC请求, 调用当前RPC结点上发布的方法
+    service->CallMethod(method, nullptr, request, response, done);
+}
+
+// 发送RPC响应给客户端
+void AzRPC_Provider::SendRpcResponse(const muduo::net::TcpConnectionPtr& connection, google::protobuf::Message* response) {
+    std::string response_str;
+    if (response->SerializeToString(&response_str)) {
+        // 序列化成功，通过网络把RPC方法执行的结果返回给RPC调用方
+        connection->send(response_str);
+    }
+    else {
+        std::cout << "serialize error!" << std:: endl;
+    }
+    // conn->shutdown(); // 模拟HTTP短链接，由RpcProvider主动断开连接
+}
+
+// 析构函数退出事件循环
+AzRPC_Provider::~AzRPC_Provider() {
+    std::cout << "~AzRPC_Provider()" << std::endl;
+    event_loop.quit();
 }
