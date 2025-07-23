@@ -14,9 +14,11 @@ public:
     static AzRPC_Config& GetConfig();
 
 private:
-    static AzRPC_Config m_config();
+    static AzRPC_Config m_config;
     static AzRPC_Application* m_application;    // 全局唯一单利访问对象
     static std::mutex mtx;
+
+    AzRPC_Application() {}
     AzRPC_Application(const AzRPC_Application&)=delete;
     AzRPC_Application(AzRPC_Application&&)=delete;
 };
