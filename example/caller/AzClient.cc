@@ -1,11 +1,11 @@
-#include "src/include/AzRPC_Application.h"
 #include "../user.pb.h"
-#include "src/include/AzRPC_Controller.h"
 #include <iostream>
 #include <atomic>
 #include <thread>
 #include <chrono>
-#include "src/include/AzRPC_Logger.h"
+#include "AzRPC_Logger.h"
+#include "AzRPC_Application.h"
+#include "AzRPC_Controller.h"
 
 // 发送RPC请求的函数, 模拟客户端调用远程服务
 void send_request(int thread_id, std::atomic<int>& success_count, std::atomic<int>& fail_count) {

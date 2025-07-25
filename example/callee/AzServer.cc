@@ -1,8 +1,8 @@
 #include <iostream>
 #include <string>
 #include "../user.pb.h"
-#include "src/include/AzRPC_Application.h"
-#include "src/include/AzRPC_Provider.h"
+#include "AzRPC_Application.h"
+#include "AzRPC_Provider.h"
 
 /**
     UserService 原本是一个本地服务, 提供了两个本地方法: Login 和 GetFriendLists
