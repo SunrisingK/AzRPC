@@ -9,13 +9,13 @@
 class AzRPC_Controller: public google::protobuf::RpcChannel {
 public:
     void Reset();
-    bool Failed();
+    bool Failed() const;
     std::string ErrorText() const;
     void SetFailed(const std::string& reason);
 
     // TODO
     void StartCancel();
-    bool IsCanceld() const;
+    bool IsCanceled() const;
     void NotifyOnCancel(google::protobuf::Closure* callback);
 
 private:
