@@ -61,7 +61,7 @@ void AzRPC_Config::Trim(std::string& read_buf) {
     }
 
     // 再去掉后面的空格
-    int index = read_buf.find_last_not_of(' ');
+    index = read_buf.find_last_not_of(' ');
     if (index != -1) {
         read_buf = read_buf.substr(0, index + 1);
     }

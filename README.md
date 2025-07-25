@@ -1,4 +1,5 @@
 ### 环境准备
+
 #### 操作系统·
 
 ##### Ubuntu 24.04.2 LTS
@@ -151,4 +152,50 @@ sudo apt-get install -y libboost-all-dev
 
 ```shell
 sudo apt-get install libgoogle-glog-dev libgflags-dev
+```
+
+### 编译指令
+
+#### 进入example文件夹下生成user.pb.h和user.pb.cc
+
+```shell
+cd example
+protoc --cpp_out=. user.proto
+```
+
+#### 进入src文件夹下生成AzRPC_Header.pb.h和AzRPC_Header.pb.cc
+
+```shell
+cd ../src
+protoc --cpp_out=. AzRPC_Header.proto
+mv AzRPC_Header.pb.h include/
+```
+
+#### 生成项目可执行文件
+
+```shell
+mkdir build
+cd build
+cmake ..
+make -j${nproc}
+```
+
+#### 进入bin文件夹下分别运行./server和./client
+
+##### 进入bin文件夹
+
+```cd
+cd bin
+```
+
+##### server
+
+```shell
+./server -i ./test.conf
+```
+
+##### client
+
+```shell
+./client -i ./test.conf
 ```

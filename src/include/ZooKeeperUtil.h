@@ -16,6 +16,9 @@ public:
     // 根据参数指定znode结点路径, 或者znode结点值
     std::string GetData(const char* path);
 
+    ZkClient();
+    ~ZkClient();
+
 private:
     // 客户端句柄
     zhandle_t* m_zhandle;

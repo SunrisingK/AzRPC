@@ -19,6 +19,8 @@ public:
     // 启动RPC服务结点, 提供RPC远程调用服务
     void Run();
 
+    ~AzRPC_Provider();
+
 private:
     muduo::net::EventLoop event_loop;
 
