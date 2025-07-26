@@ -68,15 +68,15 @@ void AzRPC_Provider::Run() {
     for (auto& sp: service_map) {
         // service_name 在ZooKeeper中的目录是"/"+service_name
         std::string service_path = "/" + sp.first;
-        // 创建服务结点
-        zkclient.Create(service_path.c_str(), nullptr, 0);
+        // 创建服务结点(持久节点, state=0)
+        zkclient.CreateAsync(service_path.c_str(), nullptr, 0, 0);
         for (auto& mp: sp.second.method_map) {
             std::string method_path = service_path + "/" +mp.first;
             char method_path_data[128] = {0};
             // 将IP和端口信息存入结点数据
             sprintf(method_path_data, "%s:%d", ip.c_str(), port);
             // ZOO_EPHEMERAL表示这个节点是临时节点, 在客户端断开连接后, ZooKeeper会自动删除这个节点
-            zkclient.Create(method_path.c_str(), method_path_data, strlen(method_path_data), ZOO_EPHEMERAL);
+            zkclient.CreateAsync(method_path.c_str(), method_path_data, strlen(method_path_data), ZOO_EPHEMERAL);
         }
     }
 

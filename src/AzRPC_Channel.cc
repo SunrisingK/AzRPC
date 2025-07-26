@@ -156,7 +156,7 @@ std::string AzRPC_Channel::QueryServiceHost(ZkClient* zkclient, std::string serv
 
     std::unique_lock<std::mutex> lock(global_data_mtx);
     // 从ZooKeeper获取数据
-    std::string host_data_1 = zkclient->GetData(method_path.c_str());
+    std::string host_data_1 = zkclient->GetDataAsync(method_path.c_str());
     lock.unlock();
 
     // 没有找到服务地址
